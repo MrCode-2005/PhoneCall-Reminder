@@ -439,7 +439,9 @@ fun AddReminderScreen(
                 androidx.compose.foundation.lazy.LazyColumn(
                     modifier = Modifier.heightIn(max = 400.dp)
                 ) {
-                    androidx.compose.foundation.lazy.items(ringtones) { (name, uri) ->
+                    androidx.compose.foundation.lazy.items(ringtones) { item ->
+                        val name = item.first
+                        val uri = item.second
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()

@@ -1,0 +1,71 @@
+<resources>
+    <string name="app_name">Call Reminder</string>
+    <string name="app_description">This app simulates phone calls for productivity reminders. It does NOT make real phone calls.</string>
+    
+    <!-- Navigation -->
+    <string name="nav_phone_calls">Phone Calls</string>
+    <string name="nav_alarms">Alarms</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_daily_tasks">Daily Tasks</string>
+    
+    <!-- Phone Calls -->
+    <string name="add_reminder">Add Reminder</string>
+    <string name="edit_reminder">Edit Reminder</string>
+    <string name="caller_name">Caller Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="voice_message">Voice Message</string>
+    <string name="schedule_time">Schedule Time</string>
+    <string name="recurrence">Recurrence</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="snooze_duration">Snooze Duration</string>
+    <string name="repeat_count">Repeat Count</string>
+    
+    <!-- Recurrence Types -->
+    <string name="once">Once</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    
+    <!-- Call Screen -->
+    <string name="incoming_call">Incoming call</string>
+    <string name="mobile">Mobile</string>
+    <string name="swipe_to_answer">Swipe up to answer</string>
+    <string name="answer">Answer</string>
+    <string name="decline">Decline</string>
+    <string name="end_call">End Call</string>
+    <string name="speaker">Speaker</string>
+    <string name="mute">Mute</string>
+    <string name="keypad">Keypad</string>
+    <string name="hold">Hold</string>
+    <string name="add_call">Add call</string>
+    
+    <!-- Actions -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="snooze">Snooze</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="preview_voice">Preview Voice</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">Call Reminders</string>
+    <string name="notification_channel_description">Notifications for scheduled call reminders</string>
+    <string name="notification_incoming_call">Incoming call from %1$s</string>
+    
+    <!-- Permissions -->
+    <string name="permission_notification_title">Notification Permission</string>
+    <string name="permission_notification_message">This app needs notification permission to show incoming call alerts.</string>
+    <string name="permission_alarm_title">Exact Alarm Permission</string>
+    <string name="permission_alarm_message">This app needs exact alarm permission to trigger calls at the scheduled time.</string>
+    
+    <!-- Empty States -->
+    <string name="no_reminders">No call reminders yet</string>
+    <string name="no_alarms">No alarms set</string>
+    <string name="no_events">No events scheduled</string>
+    <string name="no_tasks">No daily tasks</string>
+    <string name="tap_to_add">Tap + to add one</string>
+    
+    <!-- Disclaimer -->
+    <string name="disclaimer_title">Important Notice</string>
+    <string name="disclaimer_message">This app simulates phone calls for personal productivity purposes only. It does NOT make real phone calls, does NOT access your contacts, and does NOT impersonate emergency services or real people.</string>
+</resources>

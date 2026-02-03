@@ -104,16 +104,32 @@ class AlarmSchedulerImpl @Inject constructor(
     }
     
     private fun scheduleExactAlarm(triggerTime: Long, pendingIntent: PendingIntent) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (alarmManager.canScheduleExactAlarms()) {
+                    alarmManager.setAlarmClock(
+                        AlarmManager.AlarmClockInfo(triggerTime, pendingIntent),
+                        pendingIntent
+                    )
+                } else {
+                    // Fallback: use setExactAndAllowWhileIdle which doesn't require the permission
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        triggerTime,
+                        pendingIntent
+                    )
+                }
+            } else {
                 alarmManager.setAlarmClock(
                     AlarmManager.AlarmClockInfo(triggerTime, pendingIntent),
                     pendingIntent
                 )
             }
-        } else {
-            alarmManager.setAlarmClock(
-                AlarmManager.AlarmClockInfo(triggerTime, pendingIntent),
+        } catch (e: SecurityException) {
+            // Ultimate fallback if all else fails
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTime,
                 pendingIntent
             )
         }

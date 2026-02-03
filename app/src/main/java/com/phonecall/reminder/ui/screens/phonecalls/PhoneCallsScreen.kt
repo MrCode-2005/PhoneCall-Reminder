@@ -80,11 +80,13 @@ fun PhoneCallsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.reminders, key = { it.id }) { reminder ->
+                            val context = androidx.compose.ui.platform.LocalContext.current
                             ReminderCard(
                                 reminder = reminder,
                                 onToggleEnabled = { viewModel.toggleReminderEnabled(reminder) },
                                 onClick = { onEditReminder(reminder.id) },
-                                onDelete = { viewModel.deleteReminder(reminder) }
+                                onDelete = { viewModel.deleteReminder(reminder) },
+                                onTestCall = { viewModel.triggerTestCall(reminder, context) }
                             )
                         }
                     }
@@ -100,7 +102,8 @@ private fun ReminderCard(
     reminder: Reminder,
     onToggleEnabled: () -> Unit,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onTestCall: () -> Unit
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     
@@ -221,16 +224,31 @@ private fun ReminderCard(
                     )
                 )
                 
-                IconButton(
-                    onClick = { showDeleteDialog = true },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(20.dp)
-                    )
+                Row {
+                    // Test Call Button
+                    IconButton(
+                        onClick = { onTestCall() },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.PhoneInTalk,
+                            contentDescription = "Test Call",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }

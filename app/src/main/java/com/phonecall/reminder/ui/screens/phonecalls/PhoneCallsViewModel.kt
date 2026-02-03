@@ -102,4 +102,25 @@ class PhoneCallsViewModel @Inject constructor(
     suspend fun getReminderById(id: Long): Reminder? {
         return reminderRepository.getReminderById(id)
     }
+    
+    fun triggerTestCall(reminder: Reminder, context: android.content.Context) {
+        val serviceIntent = android.content.Intent(context, com.phonecall.reminder.service.CallService::class.java).apply {
+            action = com.phonecall.reminder.service.CallService.ACTION_START_CALL
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_REMINDER_ID, reminder.id)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_CALLER_NAME, reminder.callerName)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_PHONE_NUMBER, reminder.phoneNumber)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_VOICE_MESSAGE, reminder.voiceMessage)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_RINGTONE_URI, reminder.ringtoneUri)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_REPEAT_INDEX, 0)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_REPEAT_COUNT, reminder.repeatCount)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_REPEAT_INTERVAL, reminder.repeatIntervalMinutes)
+            putExtra(com.phonecall.reminder.service.CallService.EXTRA_SNOOZE_MINUTES, reminder.snoozeMinutes)
+        }
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
+    }
 }

@@ -20,23 +20,45 @@ class RingtoneManager @Inject constructor(
     fun playRingtone(ringtoneUri: String? = null, loop: Boolean = true) {
         stopRingtone()
         
-        val uri = if (ringtoneUri != null) {
-            Uri.parse(ringtoneUri)
-        } else {
-            AndroidRingtoneManager.getDefaultUri(AndroidRingtoneManager.TYPE_RINGTONE)
-        }
-        
-        mediaPlayer = MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            )
-            setDataSource(context, uri)
-            isLooping = loop
-            prepare()
-            start()
+        try {
+            val uri = if (ringtoneUri != null) {
+                Uri.parse(ringtoneUri)
+            } else {
+                AndroidRingtoneManager.getDefaultUri(AndroidRingtoneManager.TYPE_RINGTONE)
+            }
+            
+            mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                setDataSource(context, uri)
+                isLooping = loop
+                prepare()
+                start()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Fallback to default ringtone if custom one fails
+            try {
+                val defaultUri = AndroidRingtoneManager.getDefaultUri(AndroidRingtoneManager.TYPE_RINGTONE)
+                mediaPlayer = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    setDataSource(context, defaultUri)
+                    isLooping = loop
+                    prepare()
+                    start()
+                }
+            } catch (e2: Exception) {
+                e2.printStackTrace()
+            }
         }
     }
     

@@ -43,8 +43,11 @@ fun AddReminderScreen(
     var snoozeMinutes by remember { mutableIntStateOf(5) }
     var repeatCount by remember { mutableIntStateOf(1) }
     var repeatInterval by remember { mutableIntStateOf(5) }
+    var selectedRingtoneUri by remember { mutableStateOf<String?>(null) }
+    var selectedRingtoneName by remember { mutableStateOf("Default Ringtone") }
     
     var showTimePicker by remember { mutableStateOf(false) }
+    var showRingtonePicker by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(reminderId != null) }
     
     // Load existing reminder if editing
@@ -63,6 +66,10 @@ fun AddReminderScreen(
                 snoozeMinutes = it.snoozeMinutes
                 repeatCount = it.repeatCount
                 repeatInterval = it.repeatIntervalMinutes
+                selectedRingtoneUri = it.ringtoneUri
+                if (it.ringtoneUri != null) {
+                    selectedRingtoneName = "Custom Ringtone"
+                }
             }
             isLoading = false
         }
@@ -96,7 +103,7 @@ fun AddReminderScreen(
                                     recurrenceType = recurrenceType,
                                     daysOfWeek = selectedDays,
                                     dayOfMonth = dayOfMonth,
-                                    ringtoneUri = null,
+                                    ringtoneUri = selectedRingtoneUri,
                                     snoozeMinutes = snoozeMinutes,
                                     repeatCount = repeatCount,
                                     repeatIntervalMinutes = repeatInterval
@@ -264,6 +271,43 @@ fun AddReminderScreen(
                     }
                 }
                 
+                // Ringtone Section
+                SectionCard(title = "Ringtone") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { showRingtonePicker = true }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.MusicNote,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = selectedRingtoneName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "Tap to change ringtone",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = Color.Gray
+                        )
+                    }
+                }
+                
                 // Advanced Options
                 SectionCard(title = "Advanced Options") {
                     Row(
@@ -365,6 +409,69 @@ fun AddReminderScreen(
             },
             text = {
                 TimePicker(state = timePickerState)
+            }
+        )
+    }
+    
+    // Ringtone Picker Dialog
+    if (showRingtonePicker) {
+        val context = androidx.compose.ui.platform.LocalContext.current
+        val ringtones = remember {
+            val list = mutableListOf<Pair<String, String?>>()
+            list.add("Default Ringtone" to null)
+            
+            val ringtoneManager = android.media.RingtoneManager(context).apply {
+                setType(android.media.RingtoneManager.TYPE_RINGTONE)
+            }
+            val cursor = ringtoneManager.cursor
+            while (cursor.moveToNext()) {
+                val title = cursor.getString(android.media.RingtoneManager.TITLE_COLUMN_INDEX)
+                val uri = ringtoneManager.getRingtoneUri(cursor.position)
+                list.add(title to uri.toString())
+            }
+            list
+        }
+        
+        AlertDialog(
+            onDismissRequest = { showRingtonePicker = false },
+            title = { Text("Select Ringtone") },
+            text = {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier.heightIn(max = 400.dp)
+                ) {
+                    androidx.compose.foundation.lazy.items(ringtones) { (name, uri) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedRingtoneName = name
+                                    selectedRingtoneUri = uri
+                                    showRingtonePicker = false
+                                }
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedRingtoneUri == uri,
+                                onClick = {
+                                    selectedRingtoneName = name
+                                    selectedRingtoneUri = uri
+                                    showRingtonePicker = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showRingtonePicker = false }) {
+                    Text("Cancel")
+                }
             }
         )
     }

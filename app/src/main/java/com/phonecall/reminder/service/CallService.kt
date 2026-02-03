@@ -102,13 +102,28 @@ class CallService : Service() {
         isCallAnswered = false
         
         acquireWakeLock()
-        startForeground(NOTIFICATION_ID, createIncomingCallNotification())
         
-        // Start ringtone and vibration
-        ringtoneManager.playRingtone(currentRingtoneUri, loop = true)
-        vibrationManager.startCallVibration()
+        // Create and start foreground notification with full-screen intent
+        val notification = createIncomingCallNotification()
+        startForeground(NOTIFICATION_ID, notification)
         
-        // Launch incoming call activity
+        // Start ringtone and vibration with error handling
+        try {
+            ringtoneManager.playRingtone(currentRingtoneUri, loop = true)
+        } catch (e: Exception) {
+            // Log but don't fail - vibration will still work
+            e.printStackTrace()
+        }
+        
+        try {
+            vibrationManager.startCallVibration()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        // Force launch the activity - this is needed because full-screen intent 
+        // only works when the screen is locked or the app is not visible
+        // When testing from within the app, we need to launch directly
         launchIncomingCallActivity()
     }
     
@@ -184,16 +199,23 @@ class CallService : Service() {
     }
     
     private fun launchIncomingCallActivity() {
-        val intent = Intent(this, IncomingCallActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            putExtra(EXTRA_CALLER_NAME, currentCallerName)
-            putExtra(EXTRA_PHONE_NUMBER, currentPhoneNumber)
-            putExtra(EXTRA_VOICE_MESSAGE, currentVoiceMessage)
-            putExtra(EXTRA_SNOOZE_MINUTES, currentSnoozeMinutes)
+        try {
+            val intent = Intent(this, IncomingCallActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+                putExtra(EXTRA_CALLER_NAME, currentCallerName)
+                putExtra(EXTRA_PHONE_NUMBER, currentPhoneNumber)
+                putExtra(EXTRA_VOICE_MESSAGE, currentVoiceMessage)
+                putExtra(EXTRA_SNOOZE_MINUTES, currentSnoozeMinutes)
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // The full-screen intent in the notification will handle it
         }
-        startActivity(intent)
     }
     
     private fun createIncomingCallNotification(): Notification {

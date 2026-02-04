@@ -434,40 +434,130 @@ fun AddReminderScreen(
             list
         }
         
+        var selectedTab by remember { mutableIntStateOf(0) }
+        val tabs = listOf("Default", "Custom Audio")
+        
+        // File picker launcher for custom audio
+        val audioPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+            contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+        ) { uri ->
+            uri?.let {
+                selectedRingtoneUri = it.toString()
+                selectedRingtoneName = "Custom Audio"
+                showRingtonePicker = false
+            }
+        }
+        
         AlertDialog(
             onDismissRequest = { showRingtonePicker = false },
-            title = { Text("Select Ringtone") },
+            title = { 
+                Column {
+                    Text("Select Ringtone")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TabRow(selectedTabIndex = selectedTab) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = { Text(title) }
+                            )
+                        }
+                    }
+                }
+            },
             text = {
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 400.dp)
-                ) {
-                    items(ringtones) { item ->
-                        val name = item.first
-                        val uri = item.second
-                        Row(
+                when (selectedTab) {
+                    0 -> {
+                        // Default Ringtones
+                        LazyColumn(
+                            modifier = Modifier.heightIn(max = 350.dp)
+                        ) {
+                            items(ringtones) { item ->
+                                val name = item.first
+                                val uri = item.second
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedRingtoneName = name
+                                            selectedRingtoneUri = uri
+                                            showRingtonePicker = false
+                                        }
+                                        .padding(vertical = 12.dp, horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(
+                                        selected = selectedRingtoneUri == uri,
+                                        onClick = {
+                                            selectedRingtoneName = name
+                                            selectedRingtoneUri = uri
+                                            showRingtonePicker = false
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = name,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    1 -> {
+                        // Custom Audio from Storage
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    selectedRingtoneName = name
-                                    selectedRingtoneUri = uri
-                                    showRingtonePicker = false
-                                }
-                                .padding(vertical = 12.dp, horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            RadioButton(
-                                selected = selectedRingtoneUri == uri,
-                                onClick = {
-                                    selectedRingtoneName = name
-                                    selectedRingtoneUri = uri
-                                    showRingtonePicker = false
-                                }
+                            Icon(
+                                Icons.Default.MusicNote,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.primary
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = name,
-                                style = MaterialTheme.typography.bodyLarge
+                                text = "Select a music file from your device",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
                             )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                onClick = { audioPickerLauncher.launch("audio/*") },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.FolderOpen, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Browse Music Files")
+                            }
+                            
+                            if (selectedRingtoneUri != null && selectedRingtoneName == "Custom Audio") {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            Icons.Default.CheckCircle,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Custom audio selected",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -3,6 +3,8 @@ package com.phonecall.reminder.ui.screens.phonecalls
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -436,10 +438,10 @@ fun AddReminderScreen(
             onDismissRequest = { showRingtonePicker = false },
             title = { Text("Select Ringtone") },
             text = {
-                androidx.compose.foundation.lazy.LazyColumn(
+                LazyColumn(
                     modifier = Modifier.heightIn(max = 400.dp)
                 ) {
-                    androidx.compose.foundation.lazy.items(ringtones) { item ->
+                    items(ringtones) { item ->
                         val name = item.first
                         val uri = item.second
                         Row(

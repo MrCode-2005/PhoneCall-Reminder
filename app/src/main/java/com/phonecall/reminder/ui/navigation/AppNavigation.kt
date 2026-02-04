@@ -12,10 +12,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.phonecall.reminder.ui.screens.alarms.AddAlarmScreen
 import com.phonecall.reminder.ui.screens.alarms.AlarmsScreen
+import com.phonecall.reminder.ui.screens.events.AddEventScreen
 import com.phonecall.reminder.ui.screens.events.EventsScreen
 import com.phonecall.reminder.ui.screens.phonecalls.AddReminderScreen
 import com.phonecall.reminder.ui.screens.phonecalls.PhoneCallsScreen
+import com.phonecall.reminder.ui.screens.tasks.AddTaskScreen
 import com.phonecall.reminder.ui.screens.tasks.DailyTasksScreen
 
 data class BottomNavItem(
@@ -140,6 +143,24 @@ fun AppNavigation(navController: NavHostController) {
                 val id = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: return@composable
                 AddReminderScreen(
                     reminderId = id,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            composable(Screen.AddAlarm.route) {
+                AddAlarmScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            composable(Screen.AddEvent.route) {
+                AddEventScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            
+            composable(Screen.AddTask.route) {
+                AddTaskScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
